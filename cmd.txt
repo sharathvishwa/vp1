@@ -1,0 +1,292 @@
+    1  ll
+    2  vi /etc/passwd
+    3  ip a
+    4  vi /etc/ssh/sshd_config
+    5  ip a
+    6  vi /etc/netplan/00-installer-config.yaml 
+    7  netplan apply 
+    8  vi /etc/netplan/00-installer-config.yaml 
+    9  netplan apply 
+   10  ip a
+   11  init 0
+   12  vi /etc/ssh/sshd_config
+   13  passwd root
+   14  ip a
+   15  apt update
+   16  echo   "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+   17    $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+   18  apt update &&  apt-get install docker-ce docker-ce-cli containerd.io
+   19  systemctl status docker.service 
+   20  init 0
+   21  free -h
+   22  swapoff -A
+   23  swapoff -a
+   24  free -h
+   25  vi /etc/fstab 
+   26  lscpu 
+   27  apt-get update && apt-get install apt-transport-https ca-certificates curl software-properties-common -y
+   28  systemctl status docker
+   29  cat > /etc/docker/daemon.json <<EOF
+   30  {
+   31    "exec-opts": ["native.cgroupdriver=systemd"],
+   32    "log-driver": "json-file",
+   33    "log-opts": {
+   34      "max-size": "1024m"
+   35    },
+   36    "storage-driver": "overlay2"
+   37  }
+   38  EOF
+   39  systemctl daemon-reload
+   40  systemctl restart docker
+   41  curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+   42  cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
+   43  deb http://apt.kubernetes.io/ kubernetes-xenial main
+   44  EOF
+   45  apt-get update && apt-get install -y kubelet kubeadm kubectl
+   46  vi /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+   47  init 0
+   48  kubeadm init 
+   49  rm /etc/containerd/config.toml
+   50  systemctl restart containerd
+   51  kubeadm init 
+   52  mkdir -p $HOME/.kube
+   53  cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+   54  kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+   55  kubectl version --short
+   56  kubectl get nodes
+   57  vi abc.sh
+   58  mv abc.sh install_docker_k8s.sh
+   59  ls
+   60  vi install_docker_k8s.sh 
+   61  ls
+   62  vi install_docker_k8s.sh 
+   63  init 0
+   64  kubectl get pod
+   65  git clone https://github.com/nginxinc/kubernetes-ingress.git --branch v2.2.2
+   66  cd kubernetes-ingress/deployments
+   67  kubectl apply -f common/ns-and-sa.yaml
+   68  kubectl apply -f rbac/rbac.yaml
+   69  kubectl apply -f common/default-server-secret.yaml
+   70  kubectl apply -f common/nginx-config.yaml
+   71  kubectl apply -f common/ingress-class.yaml
+   72  kubectl apply -f common/crds/k8s.nginx.org_virtualservers.yaml
+   73  kubectl apply -f common/crds/k8s.nginx.org_virtualserverroutes.yaml
+   74  kubectl apply -f common/crds/k8s.nginx.org_transportservers.yaml
+   75  kubectl apply -f common/crds/k8s.nginx.org_policies.yaml
+   76  kubectl apply -f common/crds/k8s.nginx.org_globalconfigurations.yaml
+   77  kubectl apply -f daemon-set/nginx-ingress.yaml
+   78  kubectl get pods --namespace=nginx-ingress
+   79  cd
+   80  vi dep.yaml
+   81  vi .bashrc 
+   82  source .bashrc 
+   83  kubectl create -f dep.yaml 
+   84  kubectl get pod
+   85  vi ing.yaml
+   86  kubectl get svc
+   87  vi ing.yaml
+   88  kubectl create -f ing.yaml 
+   89  kubectl get ingress
+   90  kubectl get nodes
+   91  mkdir myapp
+   92  ls
+   93  cd myapp/
+   94  kubectl run --image nginx:latest --port 80 --expose --dry-run=client -o yaml > pod.yaml
+   95  kubectl run mypod --image nginx:latest --port 80 --expose --dry-run=client -o yaml > pod.yaml
+   96  vi pod.yaml 
+   97  kubectl create -f pod.yaml 
+   98  kubectl get pod
+   99  kubectl delete deployment mydep
+  100  kubectl get pod
+  101  kubectl describe pod mypod 
+  102  kubectl delete -f pod.yaml 
+  103  kubectl get nodes
+  104  cp pod.yaml node-name.yaml
+  105  mkdir scheduling
+  106  cp node-name.yaml scheduling/
+  107  cd scheduling/
+  108  ls
+  109  vi node-name.yaml 
+  110  kubectl create -f node-name.yaml 
+  111  kubectl get pod
+  112  kubectl get pod -o wide
+  113  kubectl describe pod mypod 
+  114  kubectl get nodes
+  115  kubectl get pod
+  116  kubectl delete -f node-name.yaml 
+  117  vi node-name.yaml 
+  118  kubectl create -f node-name.yaml 
+  119  kubectl get pod 
+  120  kubectl delete -f node-name.yaml 
+  121  kubectl get nodes
+  122  kubectl get nodes --show-labels 
+  123  kubectl label nodes node1 cpu=ryzen 
+  124  cp node-name.yaml node-select.yaml
+  125  vi node-select.yaml 
+  126  kubectl create -f node-select.yaml 
+  127  kubectl get pod -o wide
+  128  kubectl describe po mypod 
+  129  vi node-select.yaml 
+  130  kubectl get pod
+  131  vi node-select.yaml 
+  132  kubectl delete -f node-select.yaml 
+  133  kubectl label nodes node1 cpu-
+  134  kubectl get nodes --show-labels 
+  135  kubectl get nodes --show-labels  | grep cpu
+  136  kubectl get pod
+  137  kubectl create -f node-select.yaml 
+  138  kubectl get pod
+  139  kubectl describe pod mypod 
+  140  kubectl get pod
+  141  kubectl get pod
+  142  kubectl get nodes
+  143  kubectl describe node server 
+  144  kubectl describe node server | grep "Taint"
+  145  kubectl describe node server | grep "Taint" -A 2
+  146  kubectl describe node node1 | grep "Taint" -A 2
+  147  kubectl describe node node2 | grep "Taint" -A 2
+  148  #kubectl taint node node1 taint=green:
+  149  kubectl create deployment mydep --replicas 7 --image nginx --port 80
+  150  kubectl get pod -o wide
+  151  kubectl taint node node1 taint=green:NoExecute
+  152  kubectl get pod -o wide
+  153  kubectl describe node node1 | grep "Taint" -A 2
+  154  cp node-name.yaml taint-tol.yaml
+  155  vi taint-tol.yaml 
+  156  kubectl create -f taint-tol.yaml 
+  157  kubectl get pod -o wide
+  158  kubectl delete pod mypod-taint-tol 
+  159  kubectl get pod -o wide
+  160  cp taint-tol.yaml tol-master.yaml
+  161  kubectl describe node server | grep "Taint" -A 2
+  162  ci tol-master.yaml 
+  163  vi tol-master.yaml 
+  164  kubectl create -f tol-master.yaml 
+  165  kubectl get pod
+  166  kubectl get pod -o wide
+  167  vi tol-master.yaml 
+  168  kubectl delete -f tol-master.yaml 
+  169  vi tol-master.yaml 
+  170  kubectl delete -f tol-master.yaml 
+  171  kubectl create -f tol-master.yaml 
+  172  kubectl get pod -o wide
+  173  kubectl delete -f tol-master.yaml 
+  174  vi tol-master.yaml 
+  175  kubectl create -f tol-master.yaml 
+  176  kubectl get pod -o wide
+  177  kubectl delete -f tol-master.yaml 
+  178  vi tol-master.yaml 
+  179  kubectl describe node server | grep "Taint" -A 2
+  180  kubectl taint node server node-role.kubernetes.io/control-plane-
+  181  kubectl describe node server | grep "Taint" -A 2
+  182  vi tol-master.yaml 
+  183  kubectl create -f tol-master.yaml 
+  184  kubectl get pod -o wide
+  185  vi tol-master.yaml 
+  186  kubectl taint node node1 cpu-
+  187  kubectl taint node node1 taint-
+  188  kubectl get pod -o wide
+  189  vi tol-master.yaml 
+  190  kubectl delete -f tol-master.yaml 
+  191  kubectl create -f tol-master.yaml 
+  192  kubectl get pod -o wide
+  193  kubectl taint node server node-role.kubernetes.io/control-plane:NoSchedule
+  194  kubectl describe node server | grep "Taint" -A 2
+  195  vi tol-master.yaml 
+  196  kubectl delete -f tol-master.yaml 
+  197  kubectl create -f tol-master.yaml 
+  198  vi tol-master.yaml 
+  199  kubectl create -f tol-master.yaml 
+  200  kubectl delete -f tol-master.yaml 
+  201  kubectl create -f tol-master.yaml 
+  202  kubectl get pod -o wide
+  203  kubectl create -f taint-tol.yaml 
+  204  kubectl get pod -o wide
+  205  kubectl taint node node1 taint=green:NoExecute
+  206  kubectl get pod -o wide
+  207  kubectl create -f taint-tol.yaml 
+  208  kubectl delete -f taint-tol.yaml 
+  209  kubectl create -f taint-tol.yaml 
+  210  kubectl get pod -o wide
+  211  kubectl create -f tol-master.yaml 
+  212  kubectl get pod -o wide
+  213  kubectl taint node node1 taint-
+  214  history 
+  215  init 0
+  216  vi /etc/netplan/00-installer-config.yaml 
+  217  ls
+  218  cd myapp/
+  219  ls
+  220  cd scheduling/
+  221  ls
+  222  cp node-name.yaml node-aff-pre.yaml
+  223  vi node-aff-pre.yaml 
+  224  kubectl get nodes --show-labels 
+  225  vi node-aff-pre.yaml 
+  226  kubectl create -f node-aff-pre.yaml 
+  227  vi node-aff-pre.yaml 
+  228  kubectl create -f node-aff-pre.yaml 
+  229  kubectl get pod -o wide
+  230  kubectl delete deployments.apps mydep 
+  231  kubectl delete pod mypod-taint-tol to-master 
+  232  kubectl get pod -o wide
+  233  vi node-aff-pre.yaml 
+  234  kubectl delete -f node-aff-pre.yaml 
+  235  kubectl create -f node-aff-pre.yaml 
+  236  kubectl get pod -o wide
+  237  kubectl delete -f node-aff-pre.yaml 
+  238  vi node-aff-pre.yaml 
+  239  cp node-name.yaml node-aff-req.yaml
+  240  vi node-aff-req.yaml
+  241  kubectl create -f node-aff-req.yaml
+  242  kubectl get pod -o wide
+  243  kubectl label nodes node1 cpu-
+  244  kubectl get pod -o wide
+  245  kubectl delete -f node-aff-req.yaml
+  246  kubectl create -f node-aff-req.yaml
+  247  kubectl get pod -o wide
+  248  vi node-aff-req.yaml
+  249  kubectl get pod -o wide
+  250  kubectl label nodes node1 cpu=ryzen
+  251  kubectl get pod -o wide
+  252  vi node-aff-req.yaml
+  253  kubectl delete -f node-aff-req.yaml
+  254  vi node-aff-req.yaml
+  255  kubectl create -f node-aff-req.yaml
+  256  kubectl get pod -o wide
+  257  kubectl delete -f node-aff-req.yaml
+  258  cp ../pod.yaml .
+  259  vi pod.yaml 
+  260  kubectl create -f pod.yaml 
+  261  kubectl get pod -o wide
+  262  cp node-name.yaml pod-aff-pre.yaml
+  263  vi pod-aff-pre.yaml
+  264  kubectl get nodes --show-labels 
+  265  vi pod-aff-pre.yaml
+  266  kubectl create -f pod-aff-pre.yaml
+  267  kubectl get pod -o wide
+  268  kubectl get pod --show-labels 
+  269  vi pod-aff-pre.yaml
+  270  kubectl delete -f pod-aff-pre.yaml
+  271  vi pod-aff-pre.yaml
+  272  kubectl create -f pod-aff-pre.yaml
+  273  kubectl get pod -o wide
+  274  vi pod-aff-pre.yaml
+  275  cp node-name.yaml pod-aff-req.yaml
+  276  vi pod-aff-pre.yaml
+  277  vi pod-aff-req.yaml 
+  278  kubectl get pod --show-
+  279  kubectl get pod --show-labels 
+  280  kubectl get pod -o wide
+  281  vi pod-aff-req.yaml 
+  282  kubectl create -f pod-aff-req.yaml 
+  283  kubectl get pod -o wide
+  284  kubectl delete -f pod-aff-req.yaml 
+  285  vi pod-aff-req.yaml 
+  286  kubectl create -f pod-aff-req.yaml 
+  287  kubectl get pod -o wide
+  288  cd ..
+  289  ls
+  290  git init 
+  291  history 
+  292  history > cmd.txt

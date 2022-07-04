@@ -1,0 +1,25 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: mypod
+  name: pod-aff-pref
+spec:
+  containers:
+  - image: nginx:latest
+    name: con1
+    ports:
+    - containerPort: 80
+  affinity:
+    podAffinity:   # to archive anti affinity use  podAntiAffinity
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app
+              operator: In
+              values:
+              - myapp
+          topologyKey: kubernetes.io/hostname
