@@ -29,4 +29,16 @@ spec:
     nodePort: 30128
   selector:
     app: myapp
-
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: mydep
+spec:
+  maxReplicas: 10
+  minReplicas: 3
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: mydep
+  targetCPUUtilizationPercentage: 70

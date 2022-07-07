@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: my-daemon
+spec:
+   selector:
+     matchLabels:
+       app: myapp
+   template:
+      metadata:
+        labels:
+           app: myapp
+      spec:
+        containers:
+        - name: con1
+          image: nginx:latest
+          ports:
+          - containerPort: 80
+#        nodeSelector: 
+#            cpu: ryzen
+#        tolerations:
+#        - key: node-role.kubernetes.io/control-plane
+#          effect: NoSchedule
+#        - key: node-role.kubernetes.io/master
+#          effect: NoSchedule
