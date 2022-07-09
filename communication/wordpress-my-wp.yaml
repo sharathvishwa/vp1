@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mydep
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: myapp
+   template:
+      metadata:
+        labels:
+           app: myapp
+      spec:
+        containers:
+        - name: con1
+          image: wordpress:latest
+          ports:
+          - containerPort: 80
+        - name: con2
+          image: mysql:5.7
+          ports:
+          - containerPort: 3306
+          env:
+          - name: MYSQL_ROOT_PASSWORD
+            value: test123
+          - name: MYSQL_DATABASE
+            value: testdb
+
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mydep-svc
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    nodePort: 30128
+  selector:
+    app: myapp

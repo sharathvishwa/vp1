@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: initcon
+spec:
+   replicas: 3
+   selector:
+     matchLabels:
+       app: myapp
+   template:
+      metadata:
+        labels:
+           app: myapp
+      spec:
+        initContainers:
+        - name: icon
+          image: busybox:latest
+          command: ["/bin/sh","-c","echo '<h1>Hello From init continer<h1>' > /data/index.html"] 
+          volumeMounts:
+          - name: myvol
+            mountPath: /data
+        containers:
+        - name: con1
+          image: nginx:latest
+          ports:
+          - containerPort: 80
+          volumeMounts:
+          - name: myvol
+            mountPath: /usr/share/nginx/html
+        volumes:
+        - name: myvol
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mydep-svc
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    nodePort: 30128
+  selector:
+    app: myapp
+---
+

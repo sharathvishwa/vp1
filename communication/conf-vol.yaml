@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: myapp
+   template:
+      metadata:
+        labels:
+           app: myapp
+      spec:
+        containers:
+        - name: con1
+          image: nginx:latest
+          ports:
+          - containerPort: 80
+          volumeMounts:
+          - name: myvol
+            mountPath: /usr/share/nginx/html
+        volumes:
+        - name: myvol
+          configMap:
+             name: indexfile
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mydep-svc
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    nodePort: 30128
+  selector:
+    app: myapp
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: indexfile
+data:
+  index.html: |
+    <h1> Hello From Config Map </h1>

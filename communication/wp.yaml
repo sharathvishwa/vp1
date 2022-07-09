@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress
+spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       app: myapp
+   template:
+      metadata:
+        labels:
+           app: myapp
+      spec:
+        containers:
+        - name: con1
+          image: wordpress:latest
+          ports:
+          - containerPort: 80
+          envFrom:
+          - configMapRef:
+              name: wpconf
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mydep-svc
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    nodePort: 30128
+  selector:
+    app: myapp
+---
+apiVersion: v1
+data:
+  WORDPRESS_DB_HOST: mydb-svc
+  WORDPRESS_DB_NAME: testdb
+  WORDPRESS_DB_PASSWORD: test123
+  WORDPRESS_DB_USER: root
+  WORDPRESS_TABLE_PREFIX: wp_
+kind: ConfigMap
+metadata:
+  name: wpconf
