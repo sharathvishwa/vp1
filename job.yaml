@@ -1,0 +1,15 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pi
+spec:
+  completions: 10
+  parallelism: 2
+  template:
+    spec:
+      containers:
+      - name: pi
+        image: ubuntu:latest
+        command: ["echo","Hello World"]
+      restartPolicy: Never
+ 
