@@ -1,0 +1,6 @@
+Thank you for using our application.
+visit: http://www.google.com
+
+To list all pods run following command
+
+kubectl get pods

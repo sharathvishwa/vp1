@@ -1,0 +1,7 @@
+replica: 2
+
+app:
+  cname: con1
+  image: httpd
+  cports:
+    cp: 80 
